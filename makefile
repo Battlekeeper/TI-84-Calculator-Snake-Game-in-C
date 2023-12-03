@@ -2,9 +2,9 @@
 # Makefile Options
 # ----------------------------
 
-NAME = DEMO
+NAME = SNAKE_GAME
 ICON = icon.png
-DESCRIPTION = "CE C Toolchain Demo"
+DESCRIPTION = "C Snake Game"
 COMPRESSED = YES
 COMPRESSED_MODE = zx7
 
