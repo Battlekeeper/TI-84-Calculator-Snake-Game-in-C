@@ -1,6 +1,6 @@
 # TI-84 Calculator Snake Game in C
 
-Simple Snake Game written in C cause I was bored. This project uses the [TI-84 Toolchain](https://github.com/CE-Programming/toolchain) libaries and compiler tool . I also use [CEmu](https://github.com/CE-Programming/CEmu) to easily test and debug the code. This program has also been tested on an real TI-84 Plus CE Python Edition that I own. Some examples of what the game looks like can be found below:
+Simple Snake Game written in C cause I was bored. This project uses the [TI-84 Toolchain](https://github.com/CE-Programming/toolchain) libaries and compiler tool. I also use [CEmu](https://github.com/CE-Programming/CEmu) to easily test and debug the code. This program has also been tested on an real TI-84 Plus CE Python Edition that I own. Some examples of what the game looks like can be found below:
 
 
 ![1701635466212](image/README/1701635466212.png)
