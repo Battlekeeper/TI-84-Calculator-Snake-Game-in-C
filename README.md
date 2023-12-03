@@ -10,4 +10,7 @@ Simple Snake Game written in C cause I was bored. This project uses the [TI-84 T
 ![1701635487237](image/README/1701635487237.png)
 
 
-The game does store your high score in memory so when you reload the game you can challenge your self to beat it. I spent all of like 3 hours working on this so it is crude but functional so have fun!
+The game does store your high score in memory so when you reload the game you can challenge yourself to beat it. I spent all of like 3 hours working on this so it is crude but functional so have fun!
+
+## Building the game from source
+This will be updated at some point, no guarantees
