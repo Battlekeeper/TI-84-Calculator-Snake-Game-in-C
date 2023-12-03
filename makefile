@@ -2,7 +2,7 @@
 # Makefile Options
 # ----------------------------
 
-NAME = SNK_GM
+NAME = SNKGM
 ICON = icon.png
 DESCRIPTION = "C Snake Game"
 COMPRESSED = YES
