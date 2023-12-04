@@ -2,3 +2,4 @@ bin
 obj
 CEDev
 .vscode
+ncurses-master

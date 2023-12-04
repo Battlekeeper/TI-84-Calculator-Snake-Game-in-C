@@ -41,15 +41,15 @@ void resetSnake(struct snakeBody *snake)
     }
     snake[0].x = 16;
     snake[0].y = 12;
-    snake[0].dir = RIGHT;
+    snake[0].dir = randInt(0, 3);
 
-    snake[1].x = 15;
+    snake[1].x = 16;
     snake[1].y = 12;
-    snake[1].dir = RIGHT;
+    snake[1].dir = STOPPED;
 
-    snake[2].x = 14;
+    snake[2].x = 16;
     snake[2].y = 12;
-    snake[2].dir = RIGHT;
+    snake[2].dir = STOPPED;
 }
 
 void moveApple(struct apple *apple, struct snakeBody *snake)
@@ -69,37 +69,23 @@ void moveApple(struct apple *apple, struct snakeBody *snake)
 
 void handleInput(struct snakeBody *snake)
 {
-    kb_Scan();
     kb_key_t key = kb_Data[7];
 
     switch (key)
     {
     case kb_Down:
-        if (snake[0].dir != UP)
-        {
-            snake[0].dir = DOWN;
-        }
+        snake[0].dir = DOWN;
         break;
 
     case kb_Right:
-        if (snake[0].dir != LEFT)
-        {
-            snake[0].dir = RIGHT;
-        }
+        snake[0].dir = RIGHT;
         break;
-
     case kb_Up:
-        if (snake[0].dir != DOWN)
-        {
-            snake[0].dir = UP;
-        }
+        snake[0].dir = UP;
         break;
 
     case kb_Left:
-        if (snake[0].dir != RIGHT)
-        {
-            snake[0].dir = LEFT;
-        }
+        snake[0].dir = LEFT;
         break;
     default:
         break;
@@ -115,26 +101,26 @@ bool moveSnake(struct snakeBody *snake)
         {
             continue;
         }
-        if (snake[i].dir == UP)
+
+        switch (snake[i].dir)
         {
+        case UP:
             snake[i].y--;
-        }
-        else if (snake[i].dir == DOWN)
-        {
+            break;
+        case DOWN:
             snake[i].y++;
-        }
-        else if (snake[i].dir == LEFT)
-        {
+            break;
+        case LEFT:
             snake[i].x--;
-        }
-        else if (snake[i].dir == RIGHT)
-        {
+            break;
+        case RIGHT:
             snake[i].x++;
-        }
-        else if (snake[i].dir == STOPPED)
-        {
+            break;
+        case STOPPED:
             snake[i].dir = snake[i - 1].dir;
+            break;
         }
+
         if (i > 0)
         {
             snake[i].dir = snake[i - 1].dir;
@@ -161,11 +147,20 @@ void handleApple(struct snakeBody *snake, struct apple *apple)
         snake[snakeLength].y = snake[snakeLength - 1].y;
         snake[snakeLength].dir = STOPPED;
         snakeLength++;
+        timer_Set(3, 0);
         moveApple(apple, snake);
+    }
+    else
+    {
+        if (timer_Get(3) >= 288000)
+        {
+            moveApple(apple, snake);
+            timer_Set(3, 0);
+        }
     }
 }
 
-bool gameEnd(struct snakeBody *snake, struct apple *apple)
+bool gameEnd(struct snakeBody *snake, struct apple *apple, bool win)
 {
     if (snakeLength - 3 > high_score)
     {
@@ -175,14 +170,26 @@ bool gameEnd(struct snakeBody *snake, struct apple *apple)
         ti_Close(high_score_handle);
     }
 
-    gfx_SetColor(192);
-    gfx_SetTextFGColor(192);
-    gfx_SetTextScale(2, 2);
-    gfx_PrintStringXY("Game Over!", 320 / 2 - 60, 240 / 2 - 60);
-    gfx_Rectangle(0, 0, 320, 240);
-    gfx_SetTextScale(1, 1);
-    gfx_SetTextFGColor(255);
-
+    if (win)
+    {
+        gfx_SetColor(7);
+        gfx_SetTextFGColor(7);
+        gfx_SetTextScale(2, 2);
+        gfx_PrintStringXY("You Win!", 320 / 2 - 40, 240 / 2 - 60);
+        gfx_Rectangle(0, 0, 320, 240);
+        gfx_SetTextScale(1, 1);
+        gfx_SetTextFGColor(255);
+    }
+    else
+    {
+        gfx_SetColor(192);
+        gfx_SetTextFGColor(192);
+        gfx_SetTextScale(2, 2);
+        gfx_PrintStringXY("Game Over!", 320 / 2 - 60, 240 / 2 - 60);
+        gfx_Rectangle(0, 0, 320, 240);
+        gfx_SetTextScale(1, 1);
+        gfx_SetTextFGColor(255);
+    }
 
     char score[20];
     sprintf(score, "Score: %d", snakeLength - 3);
@@ -199,7 +206,8 @@ bool gameEnd(struct snakeBody *snake, struct apple *apple)
     uint8_t key = 0;
 
     delay(500);
-    while (!key){
+    while (!key)
+    {
         key = os_GetCSC();
     }
     resetSnake(snake);
@@ -213,7 +221,9 @@ int main(void)
 {
     timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
     timer_Enable(2, TIMER_32K, TIMER_NOINT, TIMER_UP);
-    //Init Random
+    timer_Enable(3, TIMER_32K, TIMER_NOINT, TIMER_UP);
+
+    // Init Random
     srandom(timer_Get(2));
 
     // Initialize the graphics
@@ -237,7 +247,7 @@ int main(void)
     ti_Read(&high_score, sizeof(high_score), 1, high_score_handle);
     ti_Close(high_score_handle);
 
-    char high_score_str[20]; 
+    char high_score_str[20];
     sprintf(high_score_str, "High Score: %d", high_score);
 
     gfx_SetTextFGColor(255);
@@ -245,7 +255,6 @@ int main(void)
 
     gfx_PrintStringXY(high_score_str, 320 / 2 - 50, 240 / 2 - 10);
     gfx_PrintStringXY("Press any key to start", 320 / 2 - 70, 240 / 2 + 100);
-
 
     gfx_SetTextFGColor(3);
     gfx_SetTextScale(2, 2);
@@ -255,11 +264,12 @@ int main(void)
 
     // Wait to start the game
     gfx_BlitBuffer();
-    while (!os_GetCSC()){}
+    while (!os_GetCSC())
+    {
+    }
 
     // Set random seed based on timer value
     srandom(timer_Get(2));
-
 
     // Initialize the snake
     struct snakeBody *snake = (struct snakeBody *)malloc(maxSize * sizeof(struct snakeBody));
@@ -268,6 +278,9 @@ int main(void)
     moveApple(&apple, snake);
     gfx_BlitBuffer();
     bool endGame = false;
+
+    // Clear Apple Timer
+    timer_Set(3, 0);
 
     // Start Game Loop
     while (os_GetCSC() != sk_Clear && !endGame)
@@ -291,10 +304,10 @@ int main(void)
         bool crashed = moveSnake(snake);
         handleApple(snake, &apple);
         gfx_SetColor(224);
-        //Draw apple
+        // Draw apple
         gfx_FillCircle(apple.x * 10 + 5, apple.y * 10 + 7, 3);
 
-        //Draw apple stem
+        // Draw apple stem
         gfx_SetColor(3);
         gfx_SetPixel(apple.x * 10 + 4, apple.y * 10 + 4);
         gfx_SetPixel(apple.x * 10 + 5, apple.y * 10 + 4);
@@ -339,26 +352,32 @@ int main(void)
         // Draw Screen Border
         gfx_SetColor(255);
         gfx_Rectangle(0, 0, 320, 240);
-        
+
         if (snake[0].x > 31 || snake[0].x < 0 || snake[0].y > 23 || snake[0].y < 0 || crashed)
         {
-            endGame = gameEnd(snake, &apple);
+            endGame = gameEnd(snake, &apple, false);
+            timer_Set(3, 0);
+        }
+        if (snakeLength == 56)
+        {
+            endGame = gameEnd(snake, &apple, true);
+            timer_Set(3, 0);
         }
 
         int score = snakeLength - 3;
         char score_str[20];
         sprintf(score_str, "%d", score);
 
-        gfx_PrintStringXY(score_str, 0,0);
+        gfx_PrintStringXY(score_str, 0, 0);
         gfx_BlitBuffer();
-        
-        // Waits for standard number of time to update the game at a constant speed
-        // Kinda like frame delta time in a game engine
+
         do
         {
-            kb_Scan();
-        } while (timer_Get(1) < 2500);
-        
+            if (kb_Data[7] != kb_Right && kb_Data[7] != kb_Left && kb_Data[7] != kb_Up && kb_Data[7] != kb_Down)
+            {
+                kb_Scan();
+            }
+        } while (timer_Get(1) < 4000 - (snakeLength * 35)); // Sets speed of snake based on length
     }
     free(snake);
     gfx_End();
